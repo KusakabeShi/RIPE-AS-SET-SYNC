@@ -112,8 +112,7 @@ base_json_new = base_json_old
 ixmember_old = extract_member(base_json_old)
 
 bird_conninfo = get_bird_session("*")
-estab_sess = set(map(lambda x:x["as"]["remote"],filter(lambda x:x["state"] == "Established",bird_conninfo)))
-
+estab_sess = set(map(lambda x:x["as"]["remote"],filter(lambda x:x["state"] == "Established" and x["route"]["ipv6"]["imported"] > 0 ,bird_conninfo)))
 client_list = yaml.safe_load(open("/root/arouteserver/clients.yml").read())["clients"]
 client_as_set = [(c["asn"],c["cfg"]["filtering"]["irrdb"]["as_sets"]) for c in client_list]
 client_as_set = list(filter(lambda x:x[0] in estab_sess,client_as_set))
