@@ -66,10 +66,10 @@ def get_bird_session(n="*",birdc_output = None):
     result_list = []
     for proto_str in birdc_output:
         proto_str_line = proto_str.split("\n")
-        protoinfo = proto_str_line[0].strip().split(" ")
+        protoinfo = proto_str_line[0].strip().split()
         if len(protoinfo) < 3:
             continue
-        proto_name, proto_type, remain = protoinfo[0] , protoinfo[1], protoinfo[2:]
+        proto_name, proto_type, proto_table ,proto_state , proto_since ,proto_info = protoinfo[0] , protoinfo[1], protoinfo[2], protoinfo[3], protoinfo[4], protoinfo[-1]
         if proto_type != "BGP":
             continue
         result = {"name": proto_name, "state":None, "as": {"local":0, "remote":0}, "addr":{"af": 0, "local":None, "remote":None, "interface":None}, "route":{"ipv4":{"imported":0,"exported":0,"preferred":0},"ipv6":{"imported":0,"exported":0,"preferred":0}}}
