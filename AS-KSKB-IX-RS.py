@@ -10,6 +10,7 @@ from pathlib import Path
 
 as_set = os.environ["AS_SET"]
 password = os.environ["RIPE_PASSWD"]
+ars_client_path = os.environ["ARS_CLIENTS_PATH"]
 
 url = f"https://rest.db.ripe.net/ripe/as-set/{as_set}?password={password}"
 
@@ -113,7 +114,7 @@ ixmember_old = extract_member(base_json_old)
 
 bird_conninfo = get_bird_session("*")
 estab_sess = set(map(lambda x:x["as"]["remote"],filter(lambda x:x["state"] == "Established" and x["route"]["ipv6"]["imported"] > 0 ,bird_conninfo)))
-client_list = yaml.safe_load(open("/root/arouteserver/clients.yml").read())["clients"]
+client_list = yaml.safe_load(open(ars_client_path).read())["clients"]
 client_as_set = [(c["asn"],c["cfg"]["filtering"]["irrdb"]["as_sets"]) for c in client_list]
 client_as_set = list(filter(lambda x:x[0] in estab_sess,client_as_set))
 client_as_set = {c[0]:c[1] if c[1] != [] else ["AS" + str(c[0])] for c in client_as_set}
