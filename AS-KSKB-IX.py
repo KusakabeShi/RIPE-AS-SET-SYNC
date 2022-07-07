@@ -7,6 +7,7 @@ from pathlib import Path
 
 as_set = os.environ["AS_SET"]
 password = os.environ["RIPE_PASSWD"]
+ars_client_path = os.environ["ARS_CLIENTS_PATH"]
 
 url = f"https://rest.db.ripe.net/ripe/as-set/{as_set}?password={password}"
 
@@ -33,7 +34,7 @@ else:
 base_json_new = base_json_old
 ixmember_old = extract_member(base_json_old)
 
-client_list = yaml.safe_load(open("/root/arouteserver/clients.yml").read())["clients"]
+client_list = yaml.safe_load(open(ars_client_path).read())["clients"]
 client_as_set = [(c["asn"],c["cfg"]["filtering"]["irrdb"]["as_sets"]) for c in client_list]
 client_as_set = {c[0]:c[1] if c[1] != [] else ["AS" + str(c[0])] for c in client_as_set}
 ixmember_new = sum(list(client_as_set.values()), [])
