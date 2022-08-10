@@ -39,7 +39,7 @@ client_as_set = [(c["asn"],c["cfg"]["filtering"]["irrdb"]["as_sets"]) for c in c
 client_as_set = {c[0]:c[1] if c[1] != [] else ["AS" + str(c[0])] for c in client_as_set}
 ixmember_new = sum(list(client_as_set.values()), [])
 ixmember_new = {sa:"" for sa in ixmember_new}
-ixmember_new = [member if not member.startswith("RIPE:") else member[6:] for member in ixmember_new.keys()]
+ixmember_new = [member if not "::" in member else member.split("::")[1] for member in ixmember_new.keys()]
 
 if ixmember_old != ixmember_new:
     new_json = pack_member(base_json_old,ixmember_new)
