@@ -48,6 +48,6 @@ if ixmember_old != ixmember_new:
     response.raise_for_status()
     base_json_new = json.loads(response.text)
 else:
-    print("same, no update")
+    print("same, no update:" , as_set )
 
 open(base_json_save,"w").write(json.dumps(base_json_new))
