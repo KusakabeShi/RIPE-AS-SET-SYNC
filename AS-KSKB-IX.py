@@ -3,6 +3,7 @@ import requests
 import json
 import yaml
 import os
+import copy
 from pathlib import Path
 
 as_set = os.environ["AS_SET"]

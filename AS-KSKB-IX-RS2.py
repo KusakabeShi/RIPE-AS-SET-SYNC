@@ -6,6 +6,7 @@ import ipaddress
 import sys
 import os
 import argparse
+import copy
 from subprocess import PIPE, Popen
 from pathlib import Path
 

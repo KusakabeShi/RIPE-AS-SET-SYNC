@@ -5,6 +5,7 @@ import yaml
 import ipaddress
 import sys
 import os
+import copy
 from subprocess import PIPE, Popen
 from pathlib import Path
 
