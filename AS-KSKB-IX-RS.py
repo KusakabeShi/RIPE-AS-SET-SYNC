@@ -22,10 +22,14 @@ headers = {
 def extract_member(base_json):
     return list(map(lambda x:x["value"],filter(lambda x:x["name"] == "members", base_json["objects"]["object"][0]["attributes"]["attribute"])))
 def pack_member(base_json,member_list):
-    atlist = base_json["objects"]["object"][0]["attributes"]["attribute"]
-    atlist = list(filter(lambda x:x["name"] != "members",atlist))
-    atlist = atlist[0:3] + [{"name": "members", "value": member, "referenced-type":"aut-num" if member[:2] == "AS" and member[2:].isdecimal() else "as-set" } for member in member_list] + atlist[3:]
-    base_json["objects"]["object"][0]["attributes"]["attribute"] = atlist
+    base_json = copy.deepcopy(base_json)
+    old_list = base_json["objects"]["object"][0]["attributes"]["attribute"]
+    first_member_idx = index_of_first(old_list,lambda x:x["name"] == "members")
+    old_list = list(filter(lambda x:x["name"] != "members",old_list))
+    new_list = old_list[0:first_member_idx] + [{"name": "members", "value": member, "referenced-type":"aut-num" if member[:2] == "AS" and member[2:].isdecimal() else "as-set" } for member in member_list] + old_list[first_member_idx:]
+    for item in new_list:
+        item.pop("comment", None)
+    base_json["objects"]["object"][0]["attributes"]["attribute"] = new_list
     return base_json
 def getval(strin):
     return strin.split(":",1)[1].strip()
