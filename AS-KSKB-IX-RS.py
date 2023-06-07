@@ -22,6 +22,11 @@ headers = {
 
 def extract_member(base_json):
     return list(map(lambda x:x["value"],filter(lambda x:x["name"] == "members", base_json["objects"]["object"][0]["attributes"]["attribute"])))
+def index_of_first(lst, pred):
+    for i, v in enumerate(lst):
+        if pred(v):
+            return i
+    return 1
 def pack_member(base_json,member_list):
     base_json = copy.deepcopy(base_json)
     old_list = base_json["objects"]["object"][0]["attributes"]["attribute"]
