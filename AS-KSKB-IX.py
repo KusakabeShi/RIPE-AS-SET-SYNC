@@ -9,6 +9,7 @@ from pathlib import Path
 as_set = os.environ["AS_SET"]
 password = os.environ["RIPE_PASSWD"]
 ars_client_path = os.environ["ARS_CLIENTS_PATH"]
+max_asset_len = int(os.environ["MAX_ASSET_LEN"]) if ("MAX_ASSET_LEN" in os.environ) else 3000
 
 url = f"https://rest.db.ripe.net/ripe/as-set/{as_set}?password={password}"
 
@@ -50,6 +51,9 @@ client_as_set = {c[0]:c[1] if c[1] != [] else ["AS" + str(c[0])] for c in client
 ixmember_new = sum(list(client_as_set.values()), [])
 ixmember_new = {sa:"" for sa in ixmember_new}
 ixmember_new = [member if not "::" in member else member.split("::")[1] for member in ixmember_new.keys()]
+
+if len(ixmember_new) > max_asset_len:
+    raise ValueError(f"AS-Set length: {len(ixmember_new)}, exceed the MAX_ASSET_LEN: {max_asset_len}")
 
 if ixmember_old != ixmember_new:
     new_json = pack_member(base_json_old,ixmember_new)

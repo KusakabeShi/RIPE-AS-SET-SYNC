@@ -13,7 +13,7 @@ from pathlib import Path
 as_set = os.environ["AS_SET"]
 password = os.environ["RIPE_PASSWD"]
 client_asset_path = os.environ["CLIENTS_ASSET_PATH"]
-
+max_asset_len = int(os.environ["MAX_ASSET_LEN"]) if ("MAX_ASSET_LEN" in os.environ) else 3000
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--flat", help="Flat the asset",action="store_true")
@@ -58,6 +58,9 @@ else:
     client_as_set = yaml.safe_load(open(client_asset_path).read())["all"]["as-set-flat"]
     client_as_set = list(map(lambda x:"AS" + str(x),client_as_set))
 ixmember_new = [member if not "::" in member else member.split("::")[1] for member in client_as_set]
+
+if len(ixmember_new) > max_asset_len:
+    raise ValueError(f"AS-Set length: {len(ixmember_new)}, exceed the MAX_ASSET_LEN: {max_asset_len}")
 
 if ixmember_old != ixmember_new:
     new_json = pack_member(base_json_old,ixmember_new)
