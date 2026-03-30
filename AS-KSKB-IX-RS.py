@@ -15,7 +15,7 @@ ars_client_path = os.environ["ARS_CLIENTS_PATH"]
 
 max_asset_len = int(os.environ["MAX_ASSET_LEN"]) if ("MAX_ASSET_LEN" in os.environ) else 3000
 
-url = f"https://rest.db.ripe.net/ripe/as-set/{as_set}?password={password}"
+url = f"https://{password}@rest.db.ripe.net/ripe/as-set/{as_set}"
 
 headers = {
   'Content-Type': 'application/json',

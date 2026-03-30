@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--flat", help="Flat the asset",action="store_true")
 args = parser.parse_args()
 
-url = f"https://rest.db.ripe.net/ripe/as-set/{as_set}?password={password}"
+url = f"https://{password}@rest.db.ripe.net/ripe/as-set/{as_set}"
 
 headers = {
   'Content-Type': 'application/json',
