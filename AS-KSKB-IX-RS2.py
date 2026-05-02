@@ -7,11 +7,11 @@ import sys
 import os
 import argparse
 import copy
+import tempfile
 from subprocess import PIPE, Popen
 from pathlib import Path
 
 as_set = os.environ["AS_SET"]
-password = os.environ["RIPE_PASSWD"]
 client_asset_path = os.environ["CLIENTS_ASSET_PATH"]
 max_asset_len = int(os.environ["MAX_ASSET_LEN"]) if ("MAX_ASSET_LEN" in os.environ) else 3000
 
@@ -19,12 +19,23 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--flat", help="Flat the asset",action="store_true")
 args = parser.parse_args()
 
-url = f"https://{password}@rest.db.ripe.net/ripe/as-set/{as_set}"
+url = f"https://rest-cert.db.ripe.net/ripe/as-set/{as_set}"
 
 headers = {
   'Content-Type': 'application/json',
   'Accept': 'application/json'
 }
+
+def get_cert_files():
+    cert_f = tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False)
+    key_f = tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False)
+    cert_f.write(os.environ["RIPE_CLIENT_CERT"])
+    key_f.write(os.environ["RIPE_CLIENT_KEY"])
+    cert_f.close()
+    key_f.close()
+    return cert_f.name, key_f.name
+
+ripe_cert, ripe_key = get_cert_files()
 
 def extract_member(base_json):
     return list(map(lambda x:x["value"],filter(lambda x:x["name"] == "members", base_json["objects"]["object"][0]["attributes"]["attribute"])))
@@ -48,8 +59,8 @@ base_json_save = Path(as_set + "_last.json")
 if base_json_save.is_file():
     base_json_old = json.loads(open(base_json_save).read())
 else:
-    base_json_old = json.loads(requests.request("GET", url, headers=headers).text)
-    
+    base_json_old = json.loads(requests.request("GET", url, headers=headers, cert=(ripe_cert, ripe_key)).text)
+
 base_json_new = base_json_old
 ixmember_old = extract_member(base_json_old)
 if not args.flat:
@@ -65,11 +76,13 @@ if len(ixmember_new) > max_asset_len:
 if ixmember_old != ixmember_new:
     new_json = pack_member(base_json_old,ixmember_new)
     payload = json.dumps(new_json)
-    response = requests.request("PUT", url, headers=headers, data=payload)
+    response = requests.request("PUT", url, headers=headers, data=payload, cert=(ripe_cert, ripe_key))
     response.raise_for_status()
     base_json_new = json.loads(response.text)
     print("updated:",as_set)
 else:
     print("same, no update:",as_set)
 
+os.unlink(ripe_cert)
+os.unlink(ripe_key)
 open(base_json_save,"w").write(json.dumps(base_json_new))
